@@ -60,10 +60,6 @@ public final class Product {
 		return name;
 	}
 
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	public int getQuantity() {
 		return quantity;
 	}
@@ -74,10 +70,6 @@ public final class Product {
 
 	public BigDecimal getAmount() {
 		return amount;
-	}
-
-	public void setAmount(BigDecimal amount) {
-		this.amount = amount;
 	}
 
 	@Override

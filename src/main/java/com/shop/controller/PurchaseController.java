@@ -5,6 +5,7 @@ import java.net.URI;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -39,6 +40,14 @@ public class PurchaseController {
 
 		URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{PurchaseId}")
 				.buildAndExpand(purchaseResponse.getData().getPurchase().getId()).toUri();
+
 		return ResponseEntity.created(location).body(purchaseResponse);
+	}
+
+	@DeleteMapping("/delete/{PurchaseId}")
+	public ResponseEntity<GenericServiceResponseDTO<PurchaseResponseWrapper>> delete(
+			@PathVariable("PurchaseId") int purchaseId) {
+		GenericServiceResponseDTO<PurchaseResponseWrapper> data = purchaseService.delete(purchaseId);
+		return ResponseEntity.ok(data);
 	}
 }

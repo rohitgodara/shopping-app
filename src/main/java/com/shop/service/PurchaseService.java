@@ -60,8 +60,8 @@ public class PurchaseService {
 	private void isStockAvailable(List<ProductDto> products) {
 		for (ProductDto reqProduct : products) {
 			Product product = getProductByName(reqProduct.getName());
-			if (product.getQuantity()==0) {
-				throw new ItemNotAvailableException("Item '"+reqProduct.getName()+"' not available");
+			if (product.getQuantity() == 0) {
+				throw new ItemNotAvailableException("Item '" + reqProduct.getName() + "' not available");
 			}
 			if (reqProduct.getQuantity() > product.getQuantity()) {
 				throw new NotEnoughQuantityException("Not enough quantity for product :: " + reqProduct.getName());
@@ -76,11 +76,11 @@ public class PurchaseService {
 			if (product.getName().equals(productName)) {
 				if (event.equalsIgnoreCase("SELL")) {
 					product.setQuantity(product.getQuantity() - quantity);
-					if(product.getQuantity()==0) {
+					if (product.getQuantity() == 0) {
 						DummyData.newStocklist.add(product.getName());
 					}
 				}
-				if (event.equalsIgnoreCase("PURCHASE"))
+				if (event.equalsIgnoreCase("PURCHASE") || event.equalsIgnoreCase("ROLLBACK"))
 					product.setQuantity(product.getQuantity() + quantity);
 				break;
 			}
@@ -92,7 +92,24 @@ public class PurchaseService {
 			return new GenericServiceResponseDTO<>(
 					new PurchaseResponseWrapper(DummyData.purchaseList.get(purchaseId - 1)));
 		} catch (Exception e) {
-			throw new DataNotFoundException("No data found for given purchase purchase id :: " + purchaseId);
+			throw new DataNotFoundException("No data found for given purchase id :: " + purchaseId);
+		}
+	}
+
+	public GenericServiceResponseDTO<PurchaseResponseWrapper> delete(int purchaseId) {
+		try {
+			rollBackPurchase(DummyData.purchaseList.get(purchaseId - 1));
+			return new GenericServiceResponseDTO<>(
+					new PurchaseResponseWrapper(DummyData.purchaseList.remove(purchaseId - 1)));
+		} catch (Exception e) {
+			throw new DataNotFoundException("No data found for given purchase id :: " + purchaseId);
+		}
+	}
+
+	private void rollBackPurchase(Purchase purchase) {
+		List<Product> products = purchase.getProducts();
+		for (Product p : products) {
+			updateStockForEvent(p.getName(), p.getQuantity(), "ROLLBACK");
 		}
 	}
 }
